@@ -12,4 +12,5 @@ export const pairwiseEach = collection => collection.reduce((acc, element, index
 export const pipe = (value, ...fns) => fns.length > 0 ? pipe(fns[0](value), ...fns.slice(1)) : value;
 
 export const map = <T, R>(mapFn: (e: T, i: number, arr: T[]) => R) => (data: T[]): R[] => data.map(mapFn);
+export const sum = <T extends number>(data: T[]) => data.reduce((a, c) => a + +c, 0);
 export const log = console.log.bind(null);
