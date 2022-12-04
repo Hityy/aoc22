@@ -5,7 +5,8 @@ export const parseData = (data: Buffer) => data.toString().split('\n');
 
 
 export const pipe = (value, ...fns) => fns.length > 0 ? pipe(fns[0](value), ...fns.slice(1)) : value;
-export const log = console.log.bind(null);
+// export const log = console.log.bind(null);
+export const log = data => (console.log(data), data);
 
 
 export const maxBy = predicate => collection =>
@@ -23,6 +24,9 @@ export const sum = <T extends number>(data: T[]) => data.reduce((a, c) => a + +c
 //interesction
 export const intersect = ([s1, s2], i = 0, c = null, ss1 = new Set(s1), ss2 = new Set(s2)) => [...new Set([...ss1].filter(i => ss2.has(i)))];
 
+// filter
+export const filter = <T>(predicate: (t: T, i: number, arr: T[]) => boolean) => (data: T[]): T[] => data.filter(predicate);
+
 // map
 
 export const map = <T, R>(mapFn: (e: T, i: number, arr: T[]) => R) => (data: T[]): R[] => data.map(mapFn);
@@ -39,8 +43,8 @@ const groupBy = predicate => data => groupBy_(data, predicate);
 
 //group
 
-const groupN_ = (data, n, buff = [], res = []) => data.length ?
-    (buff.length === n ? groupN_(data.slice(1), n, [data[0]], [...res, buff]) : groupN_(data.slice(1), n, [...buff, data[0]], res))
+export const groupN = (n: number) => <T>(data: T[], buff: T[] = [], res: T[] = []) => data.length ?
+    buff.length === n ?
+        groupN(n)(data.slice(1), [data[0]], [...res, buff]) :
+        groupN(n)(data.slice(1), [...buff, data[0]], res)
     : [...res, buff];
-
-export const groupN = n => data => groupN_(data, n);
