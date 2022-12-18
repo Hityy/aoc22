@@ -1,4 +1,4 @@
-import { fetchData, log, map, parseData, pipe } from "../utils";
+import { fetchData, log, map, parseData, pipe, translateXY } from "../utils";
 
 // 1:1 5:2 9:3 13:4
 // 3a + b = 9// b = 9 -3a
@@ -6,7 +6,7 @@ import { fetchData, log, map, parseData, pipe } from "../utils";
 
 const r19 = Array.from({ length: 9 }, (_, i) => i + 1);
 
-const translateXY = array => array[0].map((_, colIndex) => array.map(row => row[colIndex]));
+
 
 // tworzy stos krat - dzwig podnosi
 const getOnStack = ([crates, [cratesN, from, to], stack = []]): [any, any, any] =>

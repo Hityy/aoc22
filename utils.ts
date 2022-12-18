@@ -48,3 +48,5 @@ export const groupN = (n: number) => <T>(data: T[], buff: T[] = [], res: T[] = [
         groupN(n)(data.slice(1), [data[0]], [...res, buff]) :
         groupN(n)(data.slice(1), [...buff, data[0]], res)
     : [...res, buff];
+
+export const translateXY = array => array[0].map((_, colIndex) => array.map(row => row[colIndex]));
