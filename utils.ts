@@ -50,3 +50,16 @@ export const groupN = (n: number) => <T>(data: T[], buff: T[] = [], res: T[] = [
     : [...res, buff];
 
 export const translateXY = array => array[0].map((_, colIndex) => array.map(row => row[colIndex]));
+
+
+export const reduce = <T, R>(reducer: (b: R, c: T, i: number, l: T[]) => R, buffer: R, index = 0) => (list: T[]): R => index < list.length ?
+    reduce(reducer, reducer(buffer, list[index], index, list), index + 1)(list) : buffer;
+
+export const switchCase = (s: string, ...cbs: ((s: string) => [boolean, any])[]) => {
+    let last = [null, null];
+    for (let caseN of cbs) {
+        const [r1, r2] = last = caseN(s);
+        if (r1) return r2;
+    }
+    return last;
+}

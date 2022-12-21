@@ -1,5 +1,4 @@
-import { reduce } from "powerseq";
-import { fetchData, flatMap, log, parseData, pipe } from "../utils";
+import { fetchData, flatMap, log, parseData, pipe, reduce, switchCase } from "../utils";
 
 interface Obj<T> {
     [x: string]: Obj<T> | T;
@@ -36,14 +35,7 @@ const mapToDirectoriesWithSizes = dictionary => {
     return newDict;
 };
 
-const switchCase = (s: string, ...cbs: ((s: string) => [boolean, any])[]) => {
-    let last = [null, null];
-    for (let caseN of cbs) {
-        const [r1, r2] = last = caseN(s);
-        if (r1) return r2;
-    }
-    return last;
-}
+
 
 const addFile = (directory, path: string[], [size, fileName]: string[]) => {
     const newPath = [...path, fileName];
