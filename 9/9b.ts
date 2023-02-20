@@ -73,13 +73,23 @@ const tailFollowHead = (dirs: Position[]) => {
 //     return directions.length ? headTraversAll(directions.slice(1), [...traverseHistory, ...traverseStepByStep(directions[0], traverseHistory.at(-1))])
 //         : traverseHistory;
 // }
+const trailFollowTail = (dirs: Position[]) => {
+
+};
 const headTraversAll = (directions: DirectionsSource,): Position[] => {
     let traverseHeadHistory: Position[] = [[0, 0]];
+    let traverseTailHistory: Position[] = [];
     for (let direction of directions) {
         const traverseHead = traverseStepByStep(direction, traverseHeadHistory.at(-1));
+        let traverseTail = tailFollowHead(traverseHeadHistory);
+        console.log(traverseTail);
+        
+        traverseTailHistory.push(...traverseTail);
         traverseHeadHistory = [...traverseHeadHistory, ...traverseHead];
     }
-    return traverseHeadHistory;
+
+    console.log("END:  ")
+    return traverseTailHistory;
 }
 
 const distinctPosition = (positions: Position[]) => pipe(
@@ -91,6 +101,24 @@ const distinctPosition = (positions: Position[]) => pipe(
 
 // * 8964 too high
 // * 6018
+// pipe(
+//     './9/9t.txt',
+//     fetchData,
+//     parseData,
+//     (source: string[]) => source.map(s => s.split(' ')),
+//     map(([d, v]) => [d, parseInt(v)]),
+//     headTraversAll,
+//     log,
+//     tailFollowHead,
+//     log,
+//     distinctPosition,
+//     s => s.length,
+//     log
+// );
+
+// **
+// 2378 too low
+// 2648 to high
 pipe(
     './9/9t.txt',
     fetchData,
@@ -98,30 +126,10 @@ pipe(
     (source: string[]) => source.map(s => s.split(' ')),
     map(([d, v]) => [d, parseInt(v)]),
     headTraversAll,
-    log,
-    tailFollowHead,
-    log,
-    distinctPosition,
-    s => s.length,
+    // distinctPosition,
+    // s => s.length,
     log
 );
-
-// **
-// 2378 too low
-// 2648 to high
-// pipe(
-//     './9/9t.txt',
-//     fetchData,
-//     parseData,
-//     (source: string[]) => source.map(s => s.split(' ')),
-//     map(([d, v]) => [d, parseInt(v)]),
-//     headTraversAll(9),
-//     // tailFollowHead,
-//     // log,
-//     distinctPosition,
-//     s => s.length,
-//     log
-// );
 
 
 
