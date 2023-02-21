@@ -16,7 +16,7 @@ pipe(
     map(sum),
     max,
     log
-)
+);
 
 // **
 pipe(
@@ -29,4 +29,4 @@ pipe(
     take(3),
     sum,
     log
-)
+);

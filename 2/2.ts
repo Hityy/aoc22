@@ -4,7 +4,7 @@ const enum Sign {
     Rock = 1,
     Paper = 2,
     Scissors = 3
-}
+};
 
 
 const values = {
@@ -14,7 +14,7 @@ const values = {
     Y: Sign.Paper,
     C: Sign.Scissors,
     Z: Sign.Scissors
-}
+};
 
 const enum Result {
     Win = 6,
@@ -29,7 +29,7 @@ const getResult = ([opponent, me]: [Sign, Sign]) => {
         case Sign.Rock: return (opponent === Sign.Paper ? Result.Loss : Result.Win) + me;
         case Sign.Scissors: return (opponent === Sign.Rock ? Result.Loss : Result.Win) + me;
     }
-}
+};
 
 pipe(
     './2/2p.txt',
@@ -39,7 +39,7 @@ pipe(
     map(getResult),
     sum,
     log
-)
+);
 
 
 const valuesWithWinLoss = {
@@ -49,7 +49,7 @@ const valuesWithWinLoss = {
     Y: Result.Draw,
     C: Sign.Scissors,
     Z: Result.Win,
-}
+};
 
 
 pipe(
@@ -84,4 +84,4 @@ pipe(
     }),
     sum,
     log
-)
+);
