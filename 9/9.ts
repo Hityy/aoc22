@@ -1,3 +1,4 @@
+import assert from "assert";
 import { fetchData, log, map, parseData, pipe, reduce, switchCase } from "../utils";
 
 enum Direction {
@@ -13,64 +14,49 @@ type X = number;
 type Y = number;
 type Position = [X, Y];
 
-// [x,y]
-
-
 export const range = ([starValue, endValue]: Position, mapFn = (n: number) => n as any as Position): Position[] => {
     const decrement = endValue < starValue;
     if (decrement) [endValue, starValue] = [starValue, endValue];
     return Array.from({ length: endValue - starValue }, (_, i) => mapFn(decrement ? endValue - i - 1 : starValue + i + 1));
 };
 
+const makeMove = ([x1, y1]: Position, [x2, y2]: Position = [0, 0]): Position => {
+    const dx = x1 - x2,
+        dy = y1 - y2,
+        dd = Math.abs(Math.abs(dx) - Math.abs(dy)),
+        signX = dx > 0 ? 1 : -1,
+        signY = dy > 0 ? 1 : -1,
+        incX = Math.abs(dx) > 1 ? signX : 0,
+        incY = Math.abs(dy) > 1 ? signY : 0;
 
-const traverseStepByStep = ([dir, value]: DirectionWithValue, startPosition: Position) => switchCase(dir,
-    s => [s === Direction.R, range([startPosition["0"], startPosition["0"] + value], n => [n, startPosition["1"]])],
-    s => [s === Direction.L, range([startPosition["0"], startPosition["0"] - value], n => [n, startPosition["1"]])],
-    s => [s === Direction.U, range([startPosition["1"], startPosition["1"] + value], n => [startPosition[0], n])],
-    s => [s === Direction.D, range([startPosition["1"], startPosition["1"] - value], n => [startPosition[0], n])]
-);
+    if (dd === 2)
+        return [x2 + incX, y2 + incY];
 
-const difference = (a: number, b: number) => {
-    if (a > b) return a - b;
-    return b - a;
-}
-const differenceByTwoPositions = ([x1, y1]: Position, [x2, y2]: Position) => {
-    if (difference(x1, x2) > 1) return true;
-    if (difference(y1, y2) > 1) return true;
-    return false;
+    if (Math.abs(dx) > 1 || Math.abs(dy) > 1 && dd === 1)
+        return [x2 + signX, y2 + signY];
+
+    return [x2, y2];
 }
 
-const differenceByToPointsDiagonal = ([x1, y1]: Position, [x2, y2]: Position) => {
-    if (x1 !== x2 && y1 !== y2 && differenceByTwoPositions([x1, y1], [x2, y2])) {
-        return true;
-    }
-    return false;
-}
+
+
 
 const tailFollowHead = (dirs: Position[]) => {
     const tailPositions: Position[] = [[...dirs[0]]];
-    let currentDirectionIndex = 0, currentDir, lastDir: Position, preLastDir, lastTail;
+    let currentDirectionIndex = 0, currentDir, lastDir: Position, lastTail;
 
     while (currentDirectionIndex < dirs.length) {
-        preLastDir = lastDir;
         lastDir = currentDir;
         currentDir = dirs[currentDirectionIndex];
         lastTail = tailPositions.at(-1);
 
-        if (differenceByTwoPositions(currentDir, lastTail)) {
-            tailPositions.push(lastDir);
-        } else if (differenceByToPointsDiagonal(currentDir, lastTail)) {
-            tailPositions.push(currentDir);
-        }
+        const move = makeMove(currentDir, lastTail);
+        tailPositions.push(move)
         currentDirectionIndex++;
     }
     return tailPositions;
 }
 
-// const headTraversAllR = (directions: DirectionsSource, traverseHistory: Position[] = [[0, 0]]): Position[] => {
-//     return directions.length ? headTraversAll(directions.slice(1), [...traverseHistory, ...traverseStepByStep(directions[0], traverseHistory.at(-1))])
-//         : traverseHistory;
-// }
 const headTraversAll = (directions: DirectionsSource,): Position[] => {
     let traverseHeadHistory: Position[] = [[0, 0]];
     for (let direction of directions) {
@@ -80,6 +66,14 @@ const headTraversAll = (directions: DirectionsSource,): Position[] => {
     return traverseHeadHistory;
 }
 
+
+const traverseStepByStep = ([dir, value]: DirectionWithValue, startPosition: Position) => switchCase(dir,
+    s => [s === Direction.R, range([startPosition["0"], startPosition["0"] + value], n => [n, startPosition["1"]])],
+    s => [s === Direction.L, range([startPosition["0"], startPosition["0"] - value], n => [n, startPosition["1"]])],
+    s => [s === Direction.U, range([startPosition["1"], startPosition["1"] + value], n => [startPosition[0], n])],
+    s => [s === Direction.D, range([startPosition["1"], startPosition["1"] - value], n => [startPosition[0], n])]
+);
+
 const distinctPosition = (positions: Position[]) => pipe(
     positions,
     map(([x, y]) => x + ' ' + y),
@@ -87,67 +81,132 @@ const distinctPosition = (positions: Position[]) => pipe(
     Object.keys
 );
 
-const max = (data: number[]) => Math.max(...data);
-const toobject = <T, R>(data: T[], keySelector: (k: T) => string | number, elementSelector: (e: T) => T | R = s => s as T, startValue: { [s: string | number]: T | R } = {}) => {
-    return data.reduce((acc, cur) => {
-        const key = keySelector(cur);
-        const element = elementSelector(cur);
-        acc[key] = element;
-        return acc;
-    }, startValue);
-}
-
-const a = toobject([1, 2, 3, 4], s => s);
-// console.log(a);
-
-const markOnGrid = (marks: number[][]) => {
+const markOnGrid = (marks: number[][], N = '#') => {
     const rowsNumber: number = 5;
     const colsNumber: number = 6;
     const grid = Array.from({ length: rowsNumber }, _ => Array.from({ length: colsNumber }, _ => '.'));
     const gridFilled = marks.reduce((acc, cur) => {
-        acc[Math.abs(cur[1] - 4)][cur[0]] = '#';
+        acc[Math.abs(cur[1] - 4)][cur[0]] = N;
         return acc;
     }, grid);
-    console.log(gridFilled.map(s => s.join('')).join('\n'));
+    console.log(gridFilled.map(s => s.join('')).join('\n'), '\n');
     return marks;
 }
+
+
+
+
+const inputTestData = [
+    // R4 
+    [[0, 0], [0, 0]],
+    [[1, 0], [0, 0]], // dx = 1,dy=0 => same, dd = 1
+    [[2, 0], [1, 0]], // dx = 2, dy=0 => x++, dd = 2
+    [[3, 0], [2, 0]], // dx = 2, dy=0 => x++, dd = 2
+    [[4, 0], [3, 0]], // dx= 2,dy=0 => x++ , dd= 2
+    // U4
+    [[4, 1], [3, 0]], // dx= 1,dy=1 => same , dd = 0
+    [[4, 2], [4, 1]], // dx= 1,dy=2 => x++,y++, dd= 1,dx=1, dy=2
+    [[4, 3], [4, 2]], // dx= 0,dy=2 => y++, dd = 2
+    [[4, 4], [4, 3]], // dx= 0,dy=2 => y++, dd = 2
+    // L3
+    [[3, 4], [4, 3]], // dx=-1,dy=1 => same, dd=0
+    [[2, 4], [3, 4]], // dx=-2,dy=1 => x--,y++ , dd = 1; dx=-2,dy=1
+    [[1, 4], [2, 4]], // dx=-2,dy=0 => x-- , dd = 2, dx=-2,dy=1
+    // D1
+    [[1, 3], [2, 4]], // dx=-1,dy=-1 => same , dd=0
+    // R4 
+    [[2, 3], [2, 4]], // dx=0,dy=-1 => same, dd=1,
+    [[3, 3], [2, 4]], // dx=1,dy=-1 => same, dd=0
+    [[4, 3], [3, 3]], // dx=2,dy=-1 => x++,y--, dd=1
+    [[5, 3], [4, 3]], // dx=2,dy=0 => x++, dd=2
+
+    // D1
+    [[5, 2], [4, 3]],
+    // L5
+    [[4, 2], [4, 3]],
+    [[3, 2], [4, 3]],
+    [[2, 2], [3, 2]],
+    [[1, 2], [2, 2]],
+    [[0, 2], [1, 2]],
+
+    // R2
+    [[1, 2], [1, 2]],
+    [[2, 2], [1, 2]],
+
+] as Position[][];
+
+const makeMoveTest = (inputs: Position[][]) => {
+    let lastInput = inputs[0], inputsFrom1 = inputs.slice(1);
+
+    for (let index in inputsFrom1) {
+        const [lastPositionHead, lastPositionTail] = lastInput;
+        const [positionHead, desiredPositionTail] = inputsFrom1[index];
+        const calculatedPosition = makeMove(positionHead, lastPositionTail);
+
+        assert.deepEqual(calculatedPosition, desiredPositionTail);
+
+        lastInput = inputsFrom1[index];
+    }
+
+    console.log('The tests have been completed successfully');
+}
+
+makeMoveTest(inputTestData);
+
 
 // * 8964 too high
 // * 6018
 pipe(
-    './9/9t.txt',
+    './9/9p.txt',
     fetchData,
     parseData,
     (source: string[]) => source.map(s => s.split(' ')),
     map(([d, v]) => [d, parseInt(v)]),
     headTraversAll,
-    log,
     tailFollowHead,
-    log,
-    markOnGrid,
+    // markOnGrid,
     distinctPosition,
     s => s.length,
     log
 );
 
+const callN_ = <T>(n: number, cb: (args: T) => T) => (resultArgs: T) => n === 0 ? resultArgs : callN(n - 1, cb)(cb(resultArgs));
+function callN(n: number, cb: Function) {
+    return function resolve(resultArgs, calledTimes = 0) {
+        if (calledTimes < n) return resolve(cb(resultArgs), calledTimes + 1);
+        return resultArgs;
+    }
+}
+
 // **
 // 2378 too low
 // 2648 to high
-// pipe(
-//     './9/9t.txt',
-//     fetchData,
-//     parseData,
-//     (source: string[]) => source.map(s => s.split(' ')),
-//     map(([d, v]) => [d, parseInt(v)]),
-//     headTraversAll(9),
-//     // tailFollowHead,
-//     // log,
-//     distinctPosition,
-//     s => s.length,
-//     log
-// );
+// 2619 good
+pipe(
+    './9/9p.txt',
+    fetchData,
+    parseData,
+    (source: string[]) => source.map(s => s.split(' ')),
+    map(([d, v]) => [d, parseInt(v)]),
+    headTraversAll,
+    callN(9, tailFollowHead),
+    // tailFollowHead,
+    // tailFollowHead,
+    // tailFollowHead,
 
+    // tailFollowHead,
+    // tailFollowHead,
+    // tailFollowHead,
 
+    // tailFollowHead,
+    // tailFollowHead,
+    // tailFollowHead,
+
+    // markOnGrid,
+    distinctPosition,
+    s => s.length,
+    log
+);
 
 
 
