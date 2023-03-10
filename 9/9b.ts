@@ -83,12 +83,10 @@ const headTraversAll = (directions: DirectionsSource,): Position[] => {
         const traverseHead = traverseStepByStep(direction, traverseHeadHistory.at(-1));
         let traverseTail = tailFollowHead(traverseHeadHistory);
         console.log(traverseTail);
-        
+
         traverseTailHistory.push(...traverseTail);
         traverseHeadHistory = [...traverseHeadHistory, ...traverseHead];
     }
-
-    console.log("END:  ")
     return traverseTailHistory;
 }
 
@@ -116,6 +114,22 @@ const distinctPosition = (positions: Position[]) => pipe(
 //     log
 // );
 
+const markOnGrid = (marks: number[][]) => {
+    const rowsNumber: number = 5//pipe(marks, map(([_, y]) => y), max) + 1;
+    const colsNumber: number = 6//pipe(marks, map(([x, _]) => x), max) + 1;
+    const grid = Array.from({ length: rowsNumber }, _ => Array.from({ length: colsNumber }, _ => '.'));
+    const gridFilled = marks.reduce((acc, cur) => {
+        acc[Math.abs(cur[1] - 4)][cur[0]] = '#';
+        return acc;
+    }, grid);
+
+    console.log("END:  ");
+    console.log(gridFilled.map(s => s.join('')).join('\n'));
+
+
+    return marks;
+}
+
 // **
 // 2378 too low
 // 2648 to high
@@ -126,6 +140,7 @@ pipe(
     (source: string[]) => source.map(s => s.split(' ')),
     map(([d, v]) => [d, parseInt(v)]),
     headTraversAll,
+    markOnGrid,
     // distinctPosition,
     // s => s.length,
     log

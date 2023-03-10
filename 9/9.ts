@@ -1,6 +1,4 @@
 import { fetchData, log, map, parseData, pipe, reduce, switchCase } from "../utils";
-import assert from "assert";
-
 
 enum Direction {
     R = 'R',
@@ -89,6 +87,31 @@ const distinctPosition = (positions: Position[]) => pipe(
     Object.keys
 );
 
+const max = (data: number[]) => Math.max(...data);
+const toobject = <T, R>(data: T[], keySelector: (k: T) => string | number, elementSelector: (e: T) => T | R = s => s as T, startValue: { [s: string | number]: T | R } = {}) => {
+    return data.reduce((acc, cur) => {
+        const key = keySelector(cur);
+        const element = elementSelector(cur);
+        acc[key] = element;
+        return acc;
+    }, startValue);
+}
+
+const a = toobject([1, 2, 3, 4], s => s);
+// console.log(a);
+
+const markOnGrid = (marks: number[][]) => {
+    const rowsNumber: number = 5;
+    const colsNumber: number = 6;
+    const grid = Array.from({ length: rowsNumber }, _ => Array.from({ length: colsNumber }, _ => '.'));
+    const gridFilled = marks.reduce((acc, cur) => {
+        acc[Math.abs(cur[1] - 4)][cur[0]] = '#';
+        return acc;
+    }, grid);
+    console.log(gridFilled.map(s => s.join('')).join('\n'));
+    return marks;
+}
+
 // * 8964 too high
 // * 6018
 pipe(
@@ -101,6 +124,7 @@ pipe(
     log,
     tailFollowHead,
     log,
+    markOnGrid,
     distinctPosition,
     s => s.length,
     log

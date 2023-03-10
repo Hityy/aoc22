@@ -63,3 +63,13 @@ export const switchCase = (s: string, ...cbs: ((s: string) => [boolean, any])[])
     }
     return last;
 }
+
+export const max = (data: number[]) => Math.max(...data);
+export const toobject = <T, R>(data: T[], keySelector: (k: T) => string | number, elementSelector: (e: T) => T | R = s => s as T, startValue: { [s: string | number]: T | R } = {}) => {
+    return data.reduce((acc, cur) => {
+        const key = keySelector(cur);
+        const element = elementSelector(cur);
+        acc[key] = element;
+        return acc;
+    }, startValue);
+}
