@@ -8,19 +8,6 @@ const assoc = <T, P extends PropertyKey, V>(o: T, property: P, value: V): Assign
 }
 let t = assoc({ jeden: 1 }, 'dwa', 2);
 
-// type TT<S> = S extends Record<infer R, infer V>[] ? Record<R, V> : never;
-// type T2 = TT<{hej: 1}>
-type TO<T> = T extends [infer Head extends {}, ...infer Tail] ?
-    [Head, ...TO<Tail>] : [];
-type T3<T> = T extends [infer Head extends {}, ...infer Tail] ?
-    Head & T3<Tail> : any;
-
-type t2 = T3<[{ dwa: 2 }, { trzy: 3 }]>
-
-const assocClojure = <T, S>(o: T, ...sources: TO<S>) => {
-    return Object.assign({}, o, sources) as any;
-};
-// const t5 = assocClojure({ jeden: 1 }, [{ dwa: 2 }, { trzy: 3 }])
 
 
 type Mutable<T> = {
@@ -28,7 +15,7 @@ type Mutable<T> = {
 };
 
 type TupleToObject<T, U> = T extends [infer Head extends PropertyKey, ...infer Tail] ?
-    Record<Head, TupleToObject<Tail, U>> : U;
+    { [K in Head]: TupleToObject<Tail, U> } : U;
 
 const getProp = <T, P extends PropertyKey[]>(o: T, path: P) => {
     if (path.length > 1 && typeof o[path[0]] === 'object' && !(Array.isArray(o[path[0]])))
@@ -54,6 +41,6 @@ let t2 = assocIn({ jeden: 1, dwa: { czterdziesci: 40 } }, ["dwa", "trzy", "czter
 console.log(JSON.stringify(t2));
 type Test1<T> = Mutable<T> extends [infer Head extends PropertyKey, ...infer Tail] ? Head : T
 
-const array = ["dwa", "trzy"] as const;
-type T1 = Test1<["hej", "dwa"]>
-type T2 = Test1<typeof array>;
+
+
+
