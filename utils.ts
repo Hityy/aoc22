@@ -55,11 +55,21 @@ export const translateXY = array => array[0].map((_, colIndex) => array.map(row 
 export const reduce = <T, R>(reducer: (b: R, c: T, i: number, l: T[]) => R, buffer: R, index = 0) => (list: T[]): R => index < list.length ?
     reduce(reducer, reducer(buffer, list[index], index, list), index + 1)(list) : buffer;
 
-export const switchCase = (s: string, ...cbs: ((s: string) => [boolean, any])[]) => {
+export const switchCase = <T>(s: T, ...cbs: ((s: T) => [boolean, any])[]) => {
     let last = [null, null];
     for (let caseN of cbs) {
         const [r1, r2] = last = caseN(s);
         if (r1) return r2;
     }
     return last;
+}
+
+export const max = (data: number[]) => Math.max(...data);
+export const toobject = <T, R>(data: T[], keySelector: (k: T) => string | number, elementSelector: (e: T) => T | R = s => s as T, startValue: { [s: string | number]: T | R } = {}) => {
+    return data.reduce((acc, cur) => {
+        const key = keySelector(cur);
+        const element = elementSelector(cur);
+        acc[key] = element;
+        return acc;
+    }, startValue);
 }
